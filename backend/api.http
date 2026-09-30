@@ -1,0 +1,47 @@
+### Login (obtener token)
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "student",
+  "password": "student123"
+}
+
+### Listar blueprints (usar el JWT devuelto por login)
+GET http://localhost:8080/api/v1/blueprints
+Authorization: Bearer {{token}}
+
+### Crear blueprint de prueba
+POST http://localhost:8080/api/v1/blueprints
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "author": "test-user",
+  "name": "put-test",
+  "points": [
+    {"x": 0, "y": 0},
+    {"x": 10, "y": 10}
+  ]
+}
+
+### Agregar un punto (PUT)
+PUT http://localhost:8080/api/v1/blueprints/test-user/put-test/points
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "x": 20,
+  "y": 20
+}
+
+### Consultar el blueprint y verificar que el PUT persistió
+GET http://localhost:8080/api/v1/blueprints/test-user/put-test
+Authorization: Bearer {{token}}
+
+### Consultar todos los blueprints
+GET http://localhost:8080/api/v1/blueprints
+Authorization: Bearer {{token}}
+
+### Debe responder 401 Unauthorized (sin token)
+GET http://localhost:8080/api/v1/blueprints/test-user/put-test

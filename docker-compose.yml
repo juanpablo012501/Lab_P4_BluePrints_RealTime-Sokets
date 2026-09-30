@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: blueprints
+      POSTGRES_USER: jp
+      POSTGRES_PASSWORD: secret
+    ports:
+      - '5432:5432'
+
+  # API CRUD + JWT (P3) + STOMP en /ws-blueprints
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - '8080:8080'
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/blueprints
+      SPRING_DATASOURCE_USERNAME: jp
+      SPRING_DATASOURCE_PASSWORD: secret
+    depends_on:
+      - db
+
+  # Tiempo real Socket.IO (autoriza cada plano contra la API)
+  rt-socketio:
+    build:
+      context: ./rt-socketio
+    ports:
+      - '3001:3001'
+    environment:
+      PORT: 3001
+      API_BASE: http://backend:8080
+      CORS_ORIGINS: http://localhost:5173,http://localhost:4173
+      REQUIRE_AUTH: 'true'
+    depends_on:
+      - backend
+
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+        VITE_IO_BASE: http://localhost:3001
+        VITE_STOMP_BASE: http://localhost:8080
+    ports:
+      - '5173:4173'
+    depends_on:
+      - backend
+      - rt-socketio

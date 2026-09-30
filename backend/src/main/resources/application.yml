@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/blueprints
+    username: jp
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://auth.example.com/.well-known/jwks.json
+  main:
+    allow-bean-definition-overriding: true
+
+blueprints:
+  security:
+    issuer: "https://decsis-eci/blueprints"
+    token-ttl-seconds: 3600
+
+  realtime:
+    # Orígenes permitidos para el WebSocket STOMP (restringir en producción)
+    allowed-origins: http://localhost:5173,http://localhost:4173
+    # true = el frame STOMP CONNECT debe traer un JWT válido
+    require-auth: true

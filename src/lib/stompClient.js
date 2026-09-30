@@ -1,20 +1,22 @@
 import { Client } from '@stomp/stompjs'
-// import SockJS from 'sockjs-client' // si quieres fallback
 
-export function createStompClient(baseUrl) {
-  const client = new Client({
-    brokerURL: `${baseUrl.replace(/\/$/,'')}/ws-blueprints`,
-    // webSocketFactory: () => new SockJS(`${baseUrl}/ws-blueprints`),
-    reconnectDelay: 1000,
+/**
+ * Cliente STOMP sobre WebSocket nativo. El JWT se envía como header del frame CONNECT
+ * (el handshake HTTP del navegador no permite headers personalizados).
+ */
+export function createStompClient(baseUrl, getToken) {
+  return new Client({
+    brokerURL: `${baseUrl.replace(/\/$/, '').replace(/^http/, 'ws')}/ws-blueprints`,
+    reconnectDelay: 2000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
-    onStompError: (f) => console.error('STOMP error', f.headers['message']),
+    beforeConnect: (client) => {
+      const token = getToken()
+      client.connectHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+    },
   })
-  return client
 }
 
-export function subscribeBlueprint(client, author, name, onMsg) {
-  return client.subscribe(`/topic/blueprints.${author}.${name}`, (m) => {
-    onMsg(JSON.parse(m.body))
-  })
+export function subscribeBlueprint(client, room, onMsg) {
+  return client.subscribe(`/topic/${room}`, (m) => onMsg(JSON.parse(m.body)))
 }

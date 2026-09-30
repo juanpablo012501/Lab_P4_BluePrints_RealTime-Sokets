@@ -227,8 +227,6 @@ La única latencia medible en los logs es la del `join-room` de Socket.IO: entre
 pasan **20–57 ms**, porque en ese paso el servidor consulta a la API Spring para autorizar el plano con el JWT.
 Una vez unido, cada punto se retransmite sin consultas adicionales.
 
-![Dos pestañas dibujando en vivo](docs/img/colaboracion-en-vivo.png)
-
 ### Reconexión — Socket.IO
 
 Se apagó el servicio `rt-socketio` (`Ctrl+C`) con las dos pestañas abiertas y se volvió a levantar.
